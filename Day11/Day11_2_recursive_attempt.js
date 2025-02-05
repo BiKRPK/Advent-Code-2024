@@ -1,19 +1,17 @@
-day11();
+day11_2();
 
 
-function day11() {
+function day11_2() {
     let stones = getStones();
     const blinks = 25;
     console.log(`Initial arrangement:\n ${stones}`);
 
-    for (let i = 1; i <= blinks; i++) {
-        stones = blink(stones);
-        //console.log(stones.length);
-        //console.log(`After ${i} blink:\n ${stones}`);
-    }
+    const solution = recursiveTransform(stones, blinks) 
 
-    console.log("THE SOLUTION FOR THE 11TH DAY OF CODE ADVENT IS: " + stones.length);
+    console.log("THE SOLUTION FOR THE 11TH DAY OF CODE ADVENT IS: " + solution);
 }
+
+
 
 function getStones() {
     const inputData = getInputData();
@@ -27,6 +25,17 @@ function blink(stones) {
         evolvedStones.push(...transform(stone));
     }
     return evolvedStones;
+}
+
+function recursiveTransform(stones, blinks) {
+    if (blinks > 0) {
+        let call = 0;
+        for(let stone of stones) {
+           call += recursiveTransform(transform(stone), blinks - 1)
+        }
+        return call;
+    }
+    return stones.length;
 }
 
 function transform(stone){

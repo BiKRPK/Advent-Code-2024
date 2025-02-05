@@ -1,46 +1,79 @@
+var dejavu = new Map();
+var contable = new Map();
 day11_2();
-
 
 function day11_2() {
     let stones = getStones();
     const blinks = 75;
     console.log(`Initial arrangement:\n ${stones}`);
 
+    for (let stone of stones) {
+        if (contable.has(stone)) {
+            contable.set(stone, contable.get(stone) + 1);
+        } else {
+            contable.set(stone, 1);
+        }
+    }
+    
     for (let i = 1; i <= blinks; i++) {
-        stones = blink(stones);
-        console.log(stones.length);
-        //console.log(`After ${i} blink:\n ${stones}`);
+        blinkContable();
+    }
+    //const solution = recursiveTransform(stones, blinks) 
+    let solution = 0;
+    contable.forEach((count) => {
+        solution += count;
+    });
+    console.log("THE SOLUTION FOR THE 11TH DAY OF CODE ADVENT IS: " + solution);
+}
+
+function blinkContable() {
+    let aux = new Map();
+
+    for (let [stone, count] of contable) {
+        let res = getOrSet(stone);
+
+        res.forEach(function(newStone) {
+            if (aux.has(newStone)) {
+                aux.set(newStone, aux.get(newStone) + count);
+            } else {
+                aux.set(newStone, count);
+            }
+        });
     }
 
-    console.log("THE SOLUTION FOR THE 11TH DAY OF CODE ADVENT IS: " + stones.length);
+    contable = aux;
 }
 
 function getStones() {
     const inputData = getInputData();
-    const stones = new Map();
-    inputData.trim().split(' ').map(function(element) {
-        if (stones.hasKey(element)) {
-            stones.set(element, stones.get(element) + 1);
-        } else {
-            stones.set(element, 1);
-        }
-    });
-
+    const stones = inputData.trim().split(' ').map(Number);
     return stones;
 }
 
+function blinkContable() {
+    let aux = new Map();
 
+    for (let [stone, count] of contable) {
+        let res = getOrSet(stone);
 
-function blink(stones) {
-    let evolvedStones = [];
-    for(let stone of stones) {
-        try{
-            evolvedStones.push(...transform(stone));
-        } catch (error) {
-            transform(stone);
-        }
+        res.forEach(function(newStone) {
+            if (aux.has(newStone)) {
+                aux.set(newStone, aux.get(newStone) + count);
+            } else {
+                aux.set(newStone, count);
+            }
+        });
     }
-    return evolvedStones;
+
+    contable = aux;
+}
+
+function getOrSet(stone) {
+    if (dejavu.has(stone)) { return dejavu.get(stone); } 
+
+    let res = transform(stone);
+    dejavu.set(stone, res);
+    return res;
 }
 
 function transform(stone){
@@ -53,6 +86,26 @@ function transform(stone){
         return [firstHalf, secondHalf];
     }
     return [stone * 2024];
+}
+
+
+function blink(stones) {
+    let evolvedStones = [];
+    for(let stone of stones) {
+        evolvedStones.push(...getOrSet(stone));
+    }
+    return evolvedStones;
+}
+
+function recursiveTransform(stones, blinks) {
+    if (blinks > 0) {
+        let call = 0;
+        for(let stone of stones) {
+           call += recursiveTransform(getOrSet(stone), blinks - 1)
+        }
+        return call;
+    }
+    return stones.length;
 }
 
 
